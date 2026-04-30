@@ -8,7 +8,7 @@ import * as ProductController from "./product.controller";
 
 const router = Router();
 
-router.post("/", validateBody, ProductController.getAllProducts);
+router.post("/", validateQuery, ProductController.getAllProducts);
 router.get("/search", validateQuery, ProductController.searchProduct);
 router.get("/:id", validateParam, ProductController.getProductById);
 router.put("/:id", validateParam, ProductController.updateProduct);

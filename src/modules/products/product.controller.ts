@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 
 export const getAllProducts = asyncHandler(
   async (req: Request, res: Response) => {
-    const products = await ProductServices.getAllProducts();
+    const products = await ProductServices.getAllProducts(req?.query);
     sendResponse({
       res,
       data: products,
