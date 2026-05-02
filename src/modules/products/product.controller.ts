@@ -19,20 +19,9 @@ export const getAllProducts = asyncHandler(
 
 export const getProductById = asyncHandler(
   async (req: Request, res: Response) => {
-    const products = await ProductServices.getProductById(req?.params?.id);
-    sendResponse({
-      res,
-      data: products,
-      success: true,
-      statusCode: HTTP_STATUS.OK,
-      message: "Product fetched successfully.",
-    });
-  },
-);
-
-export const searchProduct = asyncHandler(
-  async (req: Request, res: Response) => {
-    const products = await ProductServices.searchProduct(req?.query);
+    const products = await ProductServices.getProductById(
+      req?.params?.id as string,
+    );
     sendResponse({
       res,
       data: products,
