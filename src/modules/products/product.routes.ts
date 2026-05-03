@@ -10,6 +10,7 @@ const router = Router();
 
 router.get("/", validateQuery, ProductController.getAllProducts);
 router.get("/:id", validateParam, ProductController.getProductById);
-router.put("/:id", validateParam, ProductController.updateProduct);
+router.post("/add", validateBody, ProductController.addProducts);
+router.put("/update", validateParam, ProductController.updateProduct);
 
 export default router;

@@ -32,8 +32,8 @@ export const getProductById = asyncHandler(
   },
 );
 
-export const addProduct = asyncHandler(async (req: Request, res: Response) => {
-  const products = await ProductServices.addProduct(req?.body?.data);
+export const addProducts = asyncHandler(async (req: Request, res: Response) => {
+  const products = await ProductServices.addProducts(req?.body?.data);
   sendResponse({
     res,
     data: products,
