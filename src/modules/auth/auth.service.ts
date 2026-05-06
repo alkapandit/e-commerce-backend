@@ -15,6 +15,7 @@ import {
   RefreshAccessTokenInput,
 } from "./auth.types";
 import { generateOTP } from "../../common/utils/otp.util";
+import { z } from "zod";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST, // e.g. "smtp.xyz.com"
@@ -24,6 +25,40 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+});
+
+export const registerValidationSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Invalid email format"),
+
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "First name is required")
+    .max(50, "First name too long"),
+
+  lastName: z
+    .string()
+    .trim()
+    .min(1, "Last name is required")
+    .max(50, "Last name too long"),
+
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .max(100, "Password too long"),
+
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[6-9]\d{9}$/, "Invalid phone number"), // Indian format
+
+  userType: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .refine((val) => ["buyer", "seller"].includes(val), {
+      message: "userType must be either 'buyer' or 'seller'",
+    }),
 });
 
 export const register = async (data: RegisterInput) => {
@@ -49,24 +84,58 @@ export const register = async (data: RegisterInput) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        firstName,
-        lastName,
-        phone,
-        passwordHash,
-        role: userType?.toLocaleLowerCase() === "seller" ? "SELLER" : "BUYER",
-      },
-      select: {
-        firstName: true,
-        lastName: true,
-        email: true,
-        phone: true,
-      },
-    });
+    // const user = await prisma.user.create({
+    //   data: {
+    //     email,
+    //     firstName,
+    //     lastName,
+    //     phone,
+    //     passwordHash,
+    //     role: userType?.toLocaleLowerCase() === "seller" ? "SELLER" : "BUYER",
+    //   },
+    //   select: {
+    //     firstName: true,
+    //     lastName: true,
+    //     email: true,
+    //     phone: true,
+    //   },
+    // });
 
-    return user;
+    // return user;
+
+    const result = await prisma.$transaction(async (tx) => {
+      // ✅ Step 1: Create User
+      const user = await tx.user.create({
+        data: {
+          email,
+          firstName,
+          lastName,
+          phone,
+          passwordHash,
+          role: userType.toLowerCase() === "seller" ? "SELLER" : "BUYER",
+        },
+      });
+
+      // ✅ Step 2: Create Seller (ONLY if seller)
+      if (userType.toLowerCase() === "seller") {
+        await tx.seller.create({
+          data: {
+            userId: user.id,
+          },
+        });
+      }
+      // ✅ Step 2: Create Buyer (ONLY if seller)
+      if (userType.toLowerCase() === "buyer") {
+        await tx.buyer.create({
+          data: {
+            userId: user.id,
+          },
+        });
+      }
+
+      return user;
+    });
+    return result;
   } catch (error) {
     console.error("Register Error:", error);
 
