@@ -1,15 +1,25 @@
 import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../utils/apiError.util";
+import { ZodSchema } from "zod";
 
-export const validateBody = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  if (!req.body || Object.keys(req.body).length === 0) {
-    return next(new ApiError(400, "Invalid request body!"));
-  }
-  next();
+export const validateBody = (schema: ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const validated = schema.parse(req.body);
+
+      req.body = validated; // ✅ override with validated data
+
+      next();
+    } catch (error: any) {
+      return next(
+        new ApiError(
+          400,
+          error?.issues?.map((e: any) => e.message).join(", ") ||
+            "Validation error",
+        ),
+      );
+    }
+  };
 };
 
 export const validateParam = (
