@@ -53,6 +53,8 @@ export type AddProductInput = {
 };
 
 export type UpdateProductInput = Partial<{
+  id: string;
+
   name: string;
   description: string;
 

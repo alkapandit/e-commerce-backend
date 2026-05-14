@@ -45,10 +45,7 @@ export const addProducts = asyncHandler(async (req: Request, res: Response) => {
 
 export const updateProduct = asyncHandler(
   async (req: Request, res: Response) => {
-    const products = await ProductServices.updateProduct(
-      req?.body?.data.id,
-      req?.body?.data,
-    );
+    const products = await ProductServices.updateProduct(req?.body);
     sendResponse({
       res,
       data: products,

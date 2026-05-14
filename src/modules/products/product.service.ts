@@ -153,12 +153,10 @@ export const addProducts = async (products: AddProductInput[]) => {
   }
 };
 
-export const updateProduct = async (
-  id: string,
-  payload: UpdateProductInput,
-) => {
+export const updateProduct = async (product: UpdateProductInput) => {
+  console.log("product", product);
   try {
-    const productId = Number(id);
+    const productId = Number(product.id);
 
     if (isNaN(productId)) {
       throw new ApiError(400, "Invalid product ID");
@@ -174,19 +172,27 @@ export const updateProduct = async (
         throw new ApiError(404, "Product not found");
       }
 
+      const existingCategory = await tx.category.findUnique({
+        where: { id: Number(product.categoryId) },
+      });
+
+      if (!existingCategory) {
+        throw new ApiError(404, "Category not found");
+      }
+
       // ✅ 2. Update product basic fields
       const updatedProduct = await tx.product.update({
         where: { id: productId },
         data: {
-          name: payload.name,
-          description: payload.description ?? null,
-          price: payload.price ? new Prisma.Decimal(payload.price) : undefined,
-          stock: payload.stock,
-          images: payload.images,
-          categoryId: payload.categoryId
-            ? Number(payload.categoryId)
+          name: product.name,
+          description: product.description ?? null,
+          price: product.price ? new Prisma.Decimal(product.price) : undefined,
+          stock: product.stock,
+          images: product.images,
+          categoryId: product.categoryId
+            ? Number(product.categoryId)
             : undefined,
-          isActive: payload.isActive,
+          isActive: product.isActive,
         },
       });
 
@@ -208,8 +214,8 @@ export const updateProduct = async (
       }
 
       // ✅ 4. Recreate variants
-      if (payload.variants && payload.variants.length) {
-        for (const variant of payload.variants) {
+      if (product.variants && product.variants.length) {
+        for (const variant of product.variants) {
           const createdVariant = await tx.productVariant.create({
             data: {
               name: variant.name,

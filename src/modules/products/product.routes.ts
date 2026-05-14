@@ -5,7 +5,10 @@ import {
   validateQuery,
 } from "../../common/middlewares/validation.middleware";
 import * as ProductController from "./product.controller";
-import { addProductValidationSchema } from "./product.validation";
+import {
+  addProductValidationSchema,
+  updateProductValidationSchema,
+} from "./product.validation";
 
 const router = Router();
 
@@ -16,6 +19,10 @@ router.post(
   validateBody(addProductValidationSchema),
   ProductController.addProducts,
 );
-router.put("/update", validateParam, ProductController.updateProduct);
+router.put(
+  "/update",
+  validateBody(updateProductValidationSchema),
+  ProductController.updateProduct,
+);
 
 export default router;
