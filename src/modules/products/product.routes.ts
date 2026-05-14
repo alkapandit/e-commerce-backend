@@ -5,12 +5,17 @@ import {
   validateQuery,
 } from "../../common/middlewares/validation.middleware";
 import * as ProductController from "./product.controller";
+import { addProductValidationSchema } from "./product.validation";
 
 const router = Router();
 
 router.get("/", validateQuery, ProductController.getAllProducts);
 router.get("/:id", validateParam, ProductController.getProductById);
-router.post("/add", validateBody, ProductController.addProducts);
+router.post(
+  "/add",
+  validateBody(addProductValidationSchema),
+  ProductController.addProducts,
+);
 router.put("/update", validateParam, ProductController.updateProduct);
 
 export default router;
