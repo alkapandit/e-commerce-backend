@@ -8,7 +8,6 @@ import {
 } from "./product.types";
 
 import { ZodError } from "zod";
-import { addProductValidation } from "./product.validation";
 
 export const getAllProducts = async (data: ProductSearchQueryInput) => {
   const {
@@ -91,7 +90,7 @@ export const getProductById = async (id: string) => {
 
 export const addProducts = async (products: AddProductInput[]) => {
   try {
-    const validatedProducts = addProductValidation.parse(products);
+    const validatedProducts = products;
 
     const result = await prisma.$transaction(async (tx) => {
       const createdProducts = [];
@@ -154,6 +153,91 @@ export const addProducts = async (products: AddProductInput[]) => {
   }
 };
 
-export const updateProduct = async (products: UpdateProductInput) => {};
+export const updateProduct = async (
+  id: string,
+  payload: UpdateProductInput,
+) => {
+  try {
+    const productId = Number(id);
+
+    if (isNaN(productId)) {
+      throw new ApiError(400, "Invalid product ID");
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      // ✅ 1. Check if product exists
+      const existingProduct = await tx.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (!existingProduct) {
+        throw new ApiError(404, "Product not found");
+      }
+
+      // ✅ 2. Update product basic fields
+      const updatedProduct = await tx.product.update({
+        where: { id: productId },
+        data: {
+          name: payload.name,
+          description: payload.description ?? null,
+          price: payload.price ? new Prisma.Decimal(payload.price) : undefined,
+          stock: payload.stock,
+          images: payload.images,
+          categoryId: payload.categoryId
+            ? Number(payload.categoryId)
+            : undefined,
+          isActive: payload.isActive,
+        },
+      });
+
+      // ✅ 3. Delete old variants (cascade options manually)
+      const variants = await tx.productVariant.findMany({
+        where: { productId },
+      });
+
+      const variantIds = variants.map((v) => v.id);
+
+      if (variantIds.length) {
+        await tx.variantOption.deleteMany({
+          where: { variantId: { in: variantIds } },
+        });
+
+        await tx.productVariant.deleteMany({
+          where: { productId },
+        });
+      }
+
+      // ✅ 4. Recreate variants
+      if (payload.variants && payload.variants.length) {
+        for (const variant of payload.variants) {
+          const createdVariant = await tx.productVariant.create({
+            data: {
+              name: variant.name,
+              productId,
+            },
+          });
+
+          if (variant.options && variant.options.length) {
+            await tx.variantOption.createMany({
+              data: variant.options.map((opt) => ({
+                variantId: createdVariant.id,
+                value: opt.value,
+                price: opt.price ? new Prisma.Decimal(opt.price) : null,
+                stock: opt.stock ?? null,
+              })),
+            });
+          }
+        }
+      }
+
+      return updatedProduct;
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      throw new ApiError(400, error.issues.map((e) => e.message).join(", "));
+    }
+    throw error;
+  }
+};
 
 export const deleteProduct = async (id: string | string[]) => {};
