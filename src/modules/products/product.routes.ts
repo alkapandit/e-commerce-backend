@@ -7,6 +7,7 @@ import {
 import * as ProductController from "./product.controller";
 import {
   addProductValidationSchema,
+  deleteProductValidationSchema,
   updateProductValidationSchema,
 } from "./product.validation";
 
@@ -23,6 +24,11 @@ router.put(
   "/update",
   validateBody(updateProductValidationSchema),
   ProductController.updateProduct,
+);
+router.delete(
+  "/delete",
+  validateBody(deleteProductValidationSchema),
+  ProductController.deleteProduct,
 );
 
 export default router;
