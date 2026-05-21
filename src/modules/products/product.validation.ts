@@ -95,3 +95,7 @@ export const updateProductValidationSchema = z.object({
 
   createdBy: z.string().optional(),
 });
+
+export const deleteProductValidationSchema = z.object({
+  id: z.array(z.string()),
+});
