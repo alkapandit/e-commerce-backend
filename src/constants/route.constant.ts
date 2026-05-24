@@ -3,4 +3,5 @@ export const ROUTES = {
   AUTH: "/auth",
   USER: "/user",
   PRODUCT: "/product",
+  CATEGORY: "/category",
 };
