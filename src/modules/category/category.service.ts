@@ -1,5 +1,6 @@
 import prisma from "../../common/config/prisma";
 import { ApiError } from "../../common/utils/apiError.util";
+import { CreateCategoryInput } from "./category.types";
 
 export const getAllCategories = async () => {
   return await prisma.category.findMany();
@@ -19,6 +20,26 @@ export const getCategoryById = async (id: string) => {
   if (!category) {
     throw new ApiError(404, "Category not found!");
   }
+  return category;
+};
+
+export const createCategory = async (data: CreateCategoryInput) => {
+  const existingCategory = await prisma.category.findFirst({
+    where: {
+      name: data.name,
+    },
+  });
+
+  if (existingCategory) {
+    throw new ApiError(409, "Category already exists");
+  }
+
+  const category = await prisma.category.create({ data });
+
+  if (!category) {
+    throw new ApiError(500, "Getting error in creating category!");
+  }
+
   return category;
 };
 
@@ -59,10 +80,7 @@ export const deleteCategoryById = async (id: string) => {
       where: { id: categoryId },
     });
 
-    return {
-      success: true,
-      message: "Category deleted successfully",
-    };
+    return null;
   } catch (error) {
     throw error;
   }

@@ -36,7 +36,8 @@ export const getCategoryById = asyncHandler(
 
 export const createCategory = asyncHandler(
   async (req: Request, res: Response) => {
-    const category = await prisma.category.create(req.body);
+    console.log("req",req.body)
+    const category = await CategoryServices.createCategory(req.body)
 
     sendResponse({
       res,
@@ -58,7 +59,7 @@ export const deleteCategoryById = asyncHandler(
       data: category,
       success: true,
       statusCode: HTTP_STATUS.OK,
-      message: "Category fatched successfully.",
+      message: "Category deleted successfully.",
     });
   },
 );
