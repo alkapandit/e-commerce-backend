@@ -6,7 +6,6 @@ import prisma from "../config/prisma";
 import { ApiError } from "../utils/apiError.util";
 import { asyncHandler } from "../utils/asyncHandler.util";
 
-
 interface JwtUserPayload extends JwtPayload {
   userId: string;
 }
@@ -27,7 +26,7 @@ export const verifyJWT = asyncHandler(
     ) as JwtUserPayload;
 
     const user = await prisma.user.findUnique({
-      where: { id: decodedToken?.userId },
+      where: { id: Number(decodedToken?.userId) },
       select: {
         id: true,
         role: true,
