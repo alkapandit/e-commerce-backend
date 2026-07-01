@@ -7,9 +7,22 @@ import productRoutes from "./modules/products/product.routes";
 import categoryRoutes from "./modules/category/category.routes";
 import { errorHandler } from "./common/middlewares/errorHandler.middleware";
 
+import swaggerUi from "swagger-ui-express";
+import swaggerUiOptions, { openApiYamlPath } from "./config/swagger";
+
 const app = express();
 
 app.use(express.json());
+
+app.get("/swagger.yaml", (_req, res) => {
+  res.sendFile(openApiYamlPath);
+});
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(undefined, swaggerUiOptions),
+);
 
 app.use(express.urlencoded({ extended: true }));
 

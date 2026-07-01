@@ -1,0 +1,755 @@
+openapi: 3.0.0
+info:
+  title: Product Management API
+  version: 1.0.0
+  description: API documentation for the Product Management System.
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+tags:
+  - name: Auth
+  - name: Users
+  - name: Product
+  - name: Category
+  - name: Address
+paths:
+  /auth/register:
+    post:
+      summary: Register a buyer or seller account
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: User already exists
+
+  /auth/login:
+    post:
+      summary: Log in with email or phone number
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "401":
+          description: Invalid credentials
+        "404":
+          description: User not found
+
+  /auth/refreshToken:
+    post:
+      summary: Create a new access token from a refresh token
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        "200":
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /auth/send-email-otp:
+    post:
+      summary: Send an OTP to a user's email address
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailOtpRequest"
+      responses:
+        "200":
+          description: OTP sent successfully
+        "404":
+          description: Email does not exist
+
+  /auth/verify-email-otp:
+    post:
+      summary: Verify an email OTP
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyEmailOtpRequest"
+      responses:
+        "200":
+          description: Email verified successfully
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /auth/send-phone-otp:
+    post:
+      summary: Send an OTP to a user's phone number
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhoneOtpRequest"
+      responses:
+        "200":
+          description: OTP sent successfully
+
+  /auth/verify-phone-otp:
+    post:
+      summary: Verify a phone OTP
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyPhoneOtpRequest"
+      responses:
+        "200":
+          description: Phone number verified successfully
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /user/profile:
+    get:
+      summary: Get the current user's profile
+      tags: [Users]
+      responses:
+        "200":
+          description: User fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "404":
+          description: User not found
+
+  /user/update:
+    put:
+      summary: Update the current user's profile
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserProfileUpdateRequest"
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "404":
+          description: User not found
+
+  /product:
+    get:
+      summary: Get products with optional filters
+      tags: [Product]
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Category ID
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: minPrice
+          in: query
+          schema:
+            type: string
+          description: Minimum product price
+        - name: maxPrice
+          in: query
+          schema:
+            type: string
+          description: Maximum product price
+      responses:
+        "200":
+          description: Products fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /product/{id}:
+    get:
+      summary: Get a product by ID
+      tags: [Product]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      responses:
+        "200":
+          description: Product fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Product not found
+
+  /product/add:
+    post:
+      summary: Add one or more products
+      tags: [Product]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProductRequest"
+      responses:
+        "201":
+          description: Product added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /product/update:
+    put:
+      summary: Update a product
+      tags: [Product]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdateRequest"
+      responses:
+        "200":
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Product or category not found
+
+  /product/delete:
+    delete:
+      summary: Delete one or more products
+      tags: [Product]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductDeleteRequest"
+      responses:
+        "200":
+          description: Products deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Products not found
+        "409":
+          description: Products are referenced by other records
+
+  /category:
+    get:
+      summary: Get all categories
+      tags: [Category]
+      responses:
+        "200":
+          description: Categories fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /category/create:
+    post:
+      summary: Create a category
+      tags: [Category]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+      responses:
+        "201":
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /category/{id}:
+    get:
+      summary: Get a category by ID
+      tags: [Category]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      responses:
+        "200":
+          description: Category fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    delete:
+      summary: Delete a category by ID
+      tags: [Category]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      responses:
+        "200":
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /address:
+    get:
+      summary: Get all addresses
+      tags: [Address]
+      responses:
+        "200":
+          description: Addresses fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /address/{id}:
+    get:
+      summary: Get an address by ID
+      tags: [Address]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      responses:
+        "200":
+          description: Address fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    delete:
+      summary: Delete an address by ID
+      tags: [Address]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      responses:
+        "200":
+          description: Address deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /address/add:
+    post:
+      summary: Create a new address
+      tags: [Address]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressRequest"
+      responses:
+        "200":
+          description: Address added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /address/update:
+    put:
+      summary: Update an address
+      tags: [Address]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressUpdateRequest"
+      responses:
+        "200":
+          description: Address updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+components:
+  parameters:
+    PathId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Resource ID
+    Search:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: Search text
+    Page:
+      name: page
+      in: query
+      schema:
+        type: string
+        default: "1"
+      description: Page number
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: string
+        default: "10"
+      description: Number of items per page
+  responses:
+    BadRequest:
+      description: Validation error or invalid request data
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Request completed successfully.
+        data:
+          nullable: true
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Validation error
+    RegisterRequest:
+      type: object
+      required: [email, firstName, lastName, password, phone, userType]
+      properties:
+        email:
+          type: string
+          format: email
+          example: buyer@example.com
+        firstName:
+          type: string
+          example: Jane
+        lastName:
+          type: string
+          example: Doe
+        password:
+          type: string
+          minLength: 6
+          example: secret123
+        phone:
+          type: string
+          example: "9876543210"
+        userType:
+          type: string
+          enum: [buyer, seller]
+          example: buyer
+    LoginRequest:
+      type: object
+      required: [identifier, password]
+      properties:
+        identifier:
+          type: string
+          description: Email address or phone number.
+          example: buyer@example.com
+        password:
+          type: string
+          example: secret123
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    EmailOtpRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          example: buyer@example.com
+    VerifyEmailOtpRequest:
+      type: object
+      required: [email, otp]
+      properties:
+        email:
+          type: string
+          format: email
+          example: buyer@example.com
+        otp:
+          type: string
+          example: "123456"
+    PhoneOtpRequest:
+      type: object
+      required: [phone]
+      properties:
+        phone:
+          type: string
+          example: "9876543210"
+    VerifyPhoneOtpRequest:
+      type: object
+      required: [phone, otp]
+      properties:
+        phone:
+          type: string
+          example: "9876543210"
+        otp:
+          type: string
+          example: "123456"
+    UserProfileUpdateRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          example: Jane
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: jane@example.com
+        phone:
+          type: string
+          example: "9876543210"
+    AddressRequest:
+      type: object
+      required: [userId, type, addressLine1, city, state, country, pincode]
+      properties:
+        userId:
+          type: integer
+          example: 1
+        type:
+          type: string
+          enum: [HOME, OFFICE, WAREHOUSE]
+          example: HOME
+        addressLine1:
+          type: string
+          example: 221B Baker Street
+        addressLine2:
+          type: string
+          example: Near Central Park
+        city:
+          type: string
+          example: Mumbai
+        state:
+          type: string
+          example: Maharashtra
+        country:
+          type: string
+          example: India
+        pincode:
+          type: string
+          example: "400001"
+        isDefault:
+          type: boolean
+          example: true
+    AddressUpdateRequest:
+      allOf:
+        - $ref: "#/components/schemas/AddressRequest"
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: integer
+              example: 1
+    CategoryRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: Electronics
+    ProductDimensions:
+      type: object
+      properties:
+        length:
+          type: number
+          example: 10
+        width:
+          type: number
+          example: 8
+        height:
+          type: number
+          example: 4
+    ProductVariantOption:
+      type: object
+      required: [value]
+      properties:
+        value:
+          type: string
+          example: Red
+        price:
+          type: number
+          example: 999.99
+        stock:
+          type: integer
+          example: 20
+    ProductVariant:
+      type: object
+      required: [name, options]
+      properties:
+        name:
+          type: string
+          example: Color
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductVariantOption"
+    ProductRequest:
+      type: object
+      required: [name, price, categoryId, stock, images, createdBy]
+      properties:
+        name:
+          type: string
+          example: Wireless Headphones
+        description:
+          type: string
+          example: Noise cancelling bluetooth headphones.
+        price:
+          type: number
+          example: 2499.99
+        discountPrice:
+          type: number
+          example: 1999.99
+        categoryId:
+          type: string
+          example: "1"
+        subCategoryId:
+          type: string
+          example: "2"
+        brand:
+          type: string
+          example: Acme
+        sku:
+          type: string
+          example: ACME-WH-001
+        stock:
+          type: integer
+          example: 50
+        images:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            format: uri
+          example:
+            - https://example.com/product.jpg
+        isActive:
+          type: boolean
+          example: true
+        isFeatured:
+          type: boolean
+          example: false
+        tags:
+          type: array
+          items:
+            type: string
+          example: [audio, wireless]
+        weight:
+          type: number
+          example: 0.5
+        dimensions:
+          $ref: "#/components/schemas/ProductDimensions"
+        variants:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductVariant"
+        createdBy:
+          type: string
+          example: "1"
+    ProductUpdateRequest:
+      allOf:
+        - $ref: "#/components/schemas/ProductRequest"
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+              example: "1"
+    ProductDeleteRequest:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: array
+          items:
+            type: string
+          example: ["1", "2"]
