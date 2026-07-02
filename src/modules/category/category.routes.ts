@@ -4,7 +4,10 @@ import {
   validateBody,
   validateParam,
 } from "../../common/middlewares/validation.middleware";
-import { createCategoryValidationSchema } from "./category.validation";
+import {
+  createCategoryValidationSchema,
+  updateCategoryValidationSchema,
+} from "./category.validation";
 
 const router = Router();
 
@@ -13,6 +16,11 @@ router.post(
   "/create",
   validateBody(createCategoryValidationSchema),
   CategoryController.createCategory,
+);
+router.put(
+  "/update",
+  validateBody(updateCategoryValidationSchema),
+  CategoryController.updateCategory,
 );
 router.get("/:id", validateParam, CategoryController.getCategoryById);
 router.delete("/:id", validateParam, CategoryController.deleteCategoryById);

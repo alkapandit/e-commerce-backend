@@ -3,8 +3,6 @@ import * as CategoryServices from "./category.service";
 import { HTTP_STATUS } from "../../constants/httpStatus.constant";
 import { sendResponse } from "../../common/utils/apiResponse.util";
 import { asyncHandler } from "../../common/utils/asyncHandler.util";
-import prisma from "../../common/config/prisma";
-import { success } from "zod";
 
 export const getAllCategories = asyncHandler(
   async (req: Request, res: Response) => {
@@ -36,8 +34,7 @@ export const getCategoryById = asyncHandler(
 
 export const createCategory = asyncHandler(
   async (req: Request, res: Response) => {
-    console.log("req",req.body)
-    const category = await CategoryServices.createCategory(req.body)
+    const category = await CategoryServices.createCategory(req.body);
 
     sendResponse({
       res,
@@ -45,6 +42,20 @@ export const createCategory = asyncHandler(
       success: true,
       statusCode: HTTP_STATUS.CREATED,
       message: "Category created successfully.",
+    });
+  },
+);
+
+export const updateCategory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const category = await CategoryServices.updateCategory(req.body);
+
+    sendResponse({
+      res,
+      data: category,
+      success: true,
+      statusCode: HTTP_STATUS.OK,
+      message: "Category updated successfully.",
     });
   },
 );

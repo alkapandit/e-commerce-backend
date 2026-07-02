@@ -322,6 +322,30 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequest"
 
+  /category/update:
+    put:
+      summary: Update a category
+      tags: [Category]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryUpdateRequest"
+      responses:
+        "200":
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Category not found
+        "409":
+          description: Category already exists
+
   /category/{id}:
     get:
       summary: Get a category by ID
@@ -637,6 +661,15 @@ components:
         name:
           type: string
           example: Electronics
+    CategoryUpdateRequest:
+      allOf:
+        - $ref: "#/components/schemas/CategoryRequest"
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: integer
+              example: 1
     ProductDimensions:
       type: object
       properties:
