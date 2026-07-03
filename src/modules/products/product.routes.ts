@@ -10,23 +10,27 @@ import {
   deleteProductValidationSchema,
   updateProductValidationSchema,
 } from "./product.validation";
+import { verifyJWT } from "../../common/middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/", ProductController.getAllProducts);
-router.get("/:id", validateParam, ProductController.getProductById);
+router.get("/", verifyJWT, ProductController.getAllProducts);
+router.get("/:id", verifyJWT, validateParam, ProductController.getProductById);
 router.post(
   "/add",
+  verifyJWT,
   validateBody(addProductValidationSchema),
   ProductController.addProducts,
 );
 router.put(
   "/update",
+  verifyJWT,
   validateBody(updateProductValidationSchema),
   ProductController.updateProduct,
 );
 router.delete(
   "/delete",
+  verifyJWT,
   validateBody(deleteProductValidationSchema),
   ProductController.deleteProduct,
 );
