@@ -6,7 +6,9 @@ import { HTTP_STATUS } from "../../constants/httpStatus.constant";
 
 export const getAllAddress = asyncHandler(
   async (req: Request, res: Response) => {
-    const addresses = await AddressServices.getAllAddress();
+    const user = (req as any).user;
+
+    const addresses = await AddressServices.getAllAddress(user?.id);
     sendResponse({
       res,
       data: addresses,

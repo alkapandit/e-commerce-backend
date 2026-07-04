@@ -2,8 +2,10 @@ import prisma from "../../common/config/prisma";
 import { ApiError } from "../../common/utils/apiError.util";
 import { CreateAddressInput, UpdateAddressInput } from "./address.types";
 
-export const getAllAddress = async () => {
-  const result = await prisma.address.findFirst();
+export const getAllAddress = async (id: string) => {
+  const result = await prisma.address.findFirst({
+    where: { userId: Number(id) },
+  });
 
   if (!result) {
     throw new ApiError(404, "No Address found!");

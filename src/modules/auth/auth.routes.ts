@@ -4,7 +4,6 @@ import { validateBody } from "../../common/middlewares/validation.middleware";
 
 import {
   loginValidationSchema,
-  refreshAccessTokenSchema,
   registerValidationSchema,
 } from "./auth.validation";
 
