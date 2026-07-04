@@ -40,10 +40,6 @@ export const loginValidationSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export const refreshAccessTokenSchema = z.object({
-  refreshToken: z.string().trim().min(1, "Refresh token is required"),
-});
-
 export const sendEmailOtpValidationSchema = z.object({
   email: z
     .string()

@@ -9,11 +9,7 @@ import {
 import prisma from "../../common/config/prisma";
 import { ApiError } from "../../common/utils/apiError.util";
 import { HTTP_STATUS } from "../../constants/httpStatus.constant";
-import {
-  LoginInput,
-  RegisterInput,
-  RefreshAccessTokenInput,
-} from "./auth.types";
+import { LoginInput, RegisterInput } from "./auth.types";
 import { generateOTP } from "../../common/utils/otp.util";
 
 const transporter = nodemailer.createTransport({
@@ -180,7 +176,7 @@ export const login = async (data: LoginInput) => {
 
 export const logout = async (userId: string) => {};
 
-export const refreshToken = async (data: RefreshAccessTokenInput) => {
+export const refreshToken = async (data: any) => {
   const { refreshToken } = data;
   if (!refreshToken) {
     throw new ApiError(400, "Refresh token is required!");

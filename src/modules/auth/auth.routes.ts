@@ -20,11 +20,7 @@ router.post(
   validateBody(loginValidationSchema),
   AuthController?.login,
 );
-router.post(
-  "/refreshToken",
-  validateBody(refreshAccessTokenSchema),
-  AuthController?.refreshToken,
-);
+router.post("/refreshToken", AuthController?.refreshToken);
 router.post("/send-email-otp", AuthController.sendEmailOtp);
 router.post("/verify-email-otp", AuthController.verifyEmailOtp);
 router.post("/send-phone-otp", AuthController.sendPhoneOtp);

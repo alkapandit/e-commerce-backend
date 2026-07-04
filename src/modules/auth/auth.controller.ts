@@ -49,10 +49,22 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {});
 
 export const refreshToken = asyncHandler(
   async (req: Request, res: Response) => {
-    const token = await AuthService.refreshToken(req?.body);
+    const accessToken = await AuthService.refreshToken(req?.cookies);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict" as const,
+    };
+
+    res.cookie("accessToken", accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+
     sendResponse({
       res,
-      data: token,
+      data: accessToken,
       success: true,
       statusCode: HTTP_STATUS.OK,
       message: "Token refreshed successfully.",
