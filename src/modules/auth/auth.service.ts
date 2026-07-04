@@ -15,7 +15,6 @@ import {
   RefreshAccessTokenInput,
 } from "./auth.types";
 import { generateOTP } from "../../common/utils/otp.util";
-import { z } from "zod";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST, // e.g. "smtp.xyz.com"
@@ -25,40 +24,6 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-});
-
-export const registerValidationSchema = z.object({
-  email: z.string().trim().toLowerCase().email("Invalid email format"),
-
-  firstName: z
-    .string()
-    .trim()
-    .min(1, "First name is required")
-    .max(50, "First name too long"),
-
-  lastName: z
-    .string()
-    .trim()
-    .min(1, "Last name is required")
-    .max(50, "Last name too long"),
-
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .max(100, "Password too long"),
-
-  phone: z
-    .string()
-    .trim()
-    .regex(/^[6-9]\d{9}$/, "Invalid phone number"), // Indian format
-
-  userType: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .refine((val) => ["buyer", "seller"].includes(val), {
-      message: "userType must be either 'buyer' or 'seller'",
-    }),
 });
 
 export const register = async (data: RegisterInput) => {
@@ -74,7 +39,7 @@ export const register = async (data: RegisterInput) => {
         OR: [{ email }, { phone }].filter(Boolean),
       },
     });
-
+    console.log("isUserExisting", isUserExisting);
     if (isUserExisting) {
       throw new ApiError(
         409,
@@ -139,7 +104,14 @@ export const register = async (data: RegisterInput) => {
   } catch (error) {
     console.error("Register Error:", error);
 
-    throw new ApiError(500, "Failed to register user");
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    throw new ApiError(
+      HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      "Something went wrong while registering the user.",
+    );
   }
 };
 

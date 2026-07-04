@@ -1,8 +1,13 @@
 import { Router } from "express";
 import * as AuthController from "./auth.controller";
 import { validateBody } from "../../common/middlewares/validation.middleware";
-import { registerValidationSchema } from "./auth.service";
+
 import { verifyJWT } from "../../common/middlewares/auth.middleware";
+import {
+  loginValidationSchema,
+  refreshAccessTokenSchema,
+  registerValidationSchema,
+} from "./auth.validation";
 
 const router = Router();
 
@@ -11,11 +16,15 @@ router.post(
   validateBody(registerValidationSchema),
   AuthController?.register,
 );
-router.post("/login", validateBody, AuthController?.login);
+router.post(
+  "/login",
+  validateBody(loginValidationSchema),
+  AuthController?.login,
+);
 router.post(
   "/refreshToken",
   verifyJWT,
-  validateBody,
+  validateBody(refreshAccessTokenSchema),
   AuthController?.refreshToken,
 );
 router.post("/send-email-otp", verifyJWT, AuthController.sendEmailOtp);
