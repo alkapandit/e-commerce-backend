@@ -2,7 +2,6 @@ import { Router } from "express";
 import * as AuthController from "./auth.controller";
 import { validateBody } from "../../common/middlewares/validation.middleware";
 
-import { verifyJWT } from "../../common/middlewares/auth.middleware";
 import {
   loginValidationSchema,
   refreshAccessTokenSchema,
@@ -23,13 +22,12 @@ router.post(
 );
 router.post(
   "/refreshToken",
-  verifyJWT,
   validateBody(refreshAccessTokenSchema),
   AuthController?.refreshToken,
 );
-router.post("/send-email-otp", verifyJWT, AuthController.sendEmailOtp);
-router.post("/verify-email-otp", verifyJWT, AuthController.verifyEmailOtp);
-router.post("/send-phone-otp", verifyJWT, AuthController.sendPhoneOtp);
-router.post("/verify-phone-otp", verifyJWT, AuthController.verifyPhoneOtp);
+router.post("/send-email-otp", AuthController.sendEmailOtp);
+router.post("/verify-email-otp", AuthController.verifyEmailOtp);
+router.post("/send-phone-otp", AuthController.sendPhoneOtp);
+router.post("/verify-phone-otp", AuthController.verifyPhoneOtp);
 
 export default router;

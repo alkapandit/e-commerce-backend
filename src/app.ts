@@ -1,18 +1,19 @@
 import express from "express";
+import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 import { ROUTES } from "./constants/route.constant";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/users/user.routes";
 import addressRoutes from "./modules/address/address.routes";
 import productRoutes from "./modules/products/product.routes";
 import categoryRoutes from "./modules/category/category.routes";
-import { errorHandler } from "./common/middlewares/errorHandler.middleware";
-
-import swaggerUi from "swagger-ui-express";
 import swaggerUiOptions, { openApiYamlPath } from "./config/swagger";
+import { errorHandler } from "./common/middlewares/errorHandler.middleware";
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/swagger.yaml", (_req, res) => {
   res.sendFile(openApiYamlPath);
