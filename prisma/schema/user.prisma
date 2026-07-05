@@ -12,30 +12,32 @@ enum UserStatus {
 }
 
 model User {
-  id              Int         @id @default(autoincrement()) 
-  email           String      @unique
-  passwordHash    String      @map("password_hash")
-  refreshToken    String?
+  id           Int     @id @default(autoincrement())
+  email        String  @unique
+  passwordHash String  @map("password_hash")
+  refreshToken String?
 
-  phone           String?     @unique
-  firstName       String?
-  lastName        String?
+  phone     String? @unique
+  firstName String?
+  lastName  String?
 
   emailOtp        String?
   phoneOtp        String?
   otpExpiry       DateTime?
-  role            UserRole    @default(BUYER)
-  isEmailVerified Boolean     @default(false) @map("is_email_verified")
-  isPhoneVerified Boolean     @default(false) @map("is_phone_verified")
+  role            UserRole  @default(BUYER)
+  isEmailVerified Boolean   @default(false) @map("is_email_verified")
+  isPhoneVerified Boolean   @default(false) @map("is_phone_verified")
 
-  status          UserStatus  @default(ACTIVE)
-  lastLoginAt     DateTime?   @map("last_login_at")
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
+  status      UserStatus @default(ACTIVE)
+  lastLoginAt DateTime?  @map("last_login_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  buyer           Buyer?
-  seller          Seller?
-  addresses       Address[]
+  cart Cart?
+
+  buyer     Buyer?
+  seller    Seller?
+  addresses Address[]
 
   @@map("users")
 }

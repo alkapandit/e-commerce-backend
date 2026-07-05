@@ -1,10 +1,10 @@
 model ProductVariant {
-  id        Int     @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   productId Int
-  name      String  // e.g. "Size", "Color"
+  name      String // e.g. "Size", "Color"
 
-  product   Product @relation(fields: [productId], references: [id])
-  options   VariantOption[]
+  product Product         @relation(fields: [productId], references: [id])
+  options VariantOption[]
 
   @@map("product_variants")
 }
