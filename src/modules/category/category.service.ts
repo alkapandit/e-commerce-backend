@@ -37,7 +37,7 @@ export const createCategory = async (data: CreateCategoryInput) => {
   const category = await prisma.category.create({ data });
 
   if (!category) {
-    throw new ApiError(500, "Getting error in creating category!");
+    throw new ApiError(500, "Error in creating category!");
   }
 
   return category;
