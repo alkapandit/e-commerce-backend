@@ -12,6 +12,7 @@ export const getAllCartList = async (userid: string) => {
 
   return result;
 };
+
 export const getCartDetails = async (cartId: string) => {
   const result = await prisma.cart.findMany({
     where: { id: Number(cartId) },
@@ -23,11 +24,13 @@ export const getCartDetails = async (cartId: string) => {
 
   return result;
 };
+
 export const addCartItem = async (data: any) => {
   const result = await prisma.cart.create({ data });
   if (!result) {
     throw new ApiError(500, "Error in creating cart!");
   }
 };
+
 export const updateCartItem = async (cartId: string) => {};
 export const deleteCartItem = async (cartId: string) => {};
