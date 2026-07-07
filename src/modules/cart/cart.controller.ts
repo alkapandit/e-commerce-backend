@@ -43,7 +43,8 @@ export const updateCartItem = asyncHandler(
   },
 );
 export const addCartItem = asyncHandler(async (req: Request, res: Response) => {
-  const result = await CartServices.addCartItem(req.body);
+  const id = (req as any)?.userId;
+  const result = await CartServices.addCartItem(id, req.body);
   sendResponse({
     res,
     data: result,
