@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import { ROUTES } from "./constants/route.constant";
 import authRoutes from "./modules/auth/auth.routes";
+import cartRoutes from "./modules/cart/cart.routes";
 import userRoutes from "./modules/users/user.routes";
 import addressRoutes from "./modules/address/address.routes";
 import productRoutes from "./modules/products/product.routes";
@@ -32,6 +33,7 @@ app.use(`${ROUTES.API_VERSION}${ROUTES.USER}`, userRoutes);
 app.use(`${ROUTES.API_VERSION}${ROUTES.PRODUCT}`, productRoutes);
 app.use(`${ROUTES.API_VERSION}${ROUTES.CATEGORY}`, categoryRoutes);
 app.use(`${ROUTES.API_VERSION}${ROUTES.ADDRESS}`, addressRoutes);
+app.use(`${ROUTES.API_VERSION}${ROUTES.CART}`, cartRoutes);
 
 app.use(errorHandler);
 
