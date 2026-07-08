@@ -12,6 +12,7 @@ tags:
   - name: Product
   - name: Category
   - name: Address
+  - name: Cart
 paths:
   /auth/register:
     post:
@@ -457,6 +458,104 @@ paths:
                 $ref: "#/components/schemas/ApiResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
+  /cart:
+    get:
+      summary: Get the current user's cart list
+      tags: [Cart]
+      responses:
+        "200":
+          description: Cart fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "404":
+          description: No cart found
+
+  /cart/{id}:
+    get:
+      summary: Get cart details by cart ID
+      tags: [Cart]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      responses:
+        "200":
+          description: Cart details fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Cart not found
+
+  /cart/items:
+    post:
+      summary: Add an item to the cart
+      tags: [Cart]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCartItemRequest"
+      responses:
+        "201":
+          description: Item added to cart successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Product not found
+
+  /cart/items/{id}:
+    put:
+      summary: Update quantity or variant of a cart item
+      tags: [Cart]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCartItemRequest"
+      responses:
+        "200":
+          description: Cart item updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          description: You do not have access to this cart item
+        "404":
+          description: Cart item not found
+
+    delete:
+      summary: Remove an item from the cart
+      tags: [Cart]
+      parameters:
+        - $ref: "#/components/parameters/PathId"
+      responses:
+        "200":
+          description: Cart item removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          description: You do not have access to this cart item
+        "404":
+          description: Cart item not found
 
 components:
   parameters:
@@ -786,3 +885,75 @@ components:
           items:
             type: string
           example: ["1", "2"]
+    AddCartItemRequest:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: integer
+          example: 1
+        variantOptionId:
+          type: integer
+          nullable: true
+          example: 3
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+    UpdateCartItemRequest:
+      type: object
+      required: [quantity]
+      properties:
+        quantity:
+          type: integer
+          minimum: 0
+          example: 3
+          description: Set to 0 to remove the item from the cart.
+        variantOptionId:
+          type: integer
+          nullable: true
+          example: 4
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        cartId:
+          type: integer
+          example: 1
+        productId:
+          type: integer
+          example: 1
+        variantOptionId:
+          type: integer
+          nullable: true
+          example: 3
+        quantity:
+          type: integer
+          example: 2
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Cart:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 5
+        cartItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

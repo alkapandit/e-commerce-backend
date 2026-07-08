@@ -171,4 +171,35 @@ export const updateCartItem = async (
   });
 };
 
-export const deleteCartItem = async (cartId: string) => {};
+export const deleteCartItem = async (
+  userId: number,
+  cartItemIdParam: string,
+) => {
+  // 1. Validate the id param
+  const cartItemId = Number(cartItemIdParam);
+  if (!Number.isInteger(cartItemId) || cartItemId <= 0) {
+    throw new ApiError(400, "Invalid cart item id");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const cartItem = await tx.cartItem.findUnique({
+      where: { id: cartItemId },
+      include: { cart: true },
+    });
+
+    // 2. Item must exist
+    if (!cartItem) {
+      throw new ApiError(404, "Cart item not found");
+    }
+
+    // 3. Ownership check — this cart item must belong to the requesting user's cart
+    if (cartItem.cart.userId !== userId) {
+      throw new ApiError(403, "You do not have access to this cart item");
+    }
+
+    // 4. Delete it
+    await tx.cartItem.delete({ where: { id: cartItemId } });
+
+    return { removed: true, cartItemId };
+  });
+};

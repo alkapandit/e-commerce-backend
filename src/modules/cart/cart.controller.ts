@@ -60,7 +60,11 @@ export const addCartItem = asyncHandler(async (req: Request, res: Response) => {
 });
 export const deleteCartItem = asyncHandler(
   async (req: Request, res: Response) => {
-    const result = await CartServices.deleteCartItem(req.params.id as string);
+    const id = (req as any).user;
+    const result = await CartServices.deleteCartItem(
+      id,
+      req.params.id as string,
+    );
     sendResponse({
       res,
       data: result,
