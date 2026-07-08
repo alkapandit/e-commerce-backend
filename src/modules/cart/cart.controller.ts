@@ -32,7 +32,12 @@ export const getCartDetails = asyncHandler(
 );
 export const updateCartItem = asyncHandler(
   async (req: Request, res: Response) => {
-    const result = await CartServices.updateCartItem(req.params.id as string);
+    const id = (req as any).user;
+    const result = await CartServices.updateCartItem(
+      id,
+      req.params.id as string,
+      req.body,
+    );
     sendResponse({
       res,
       data: result,

@@ -1,6 +1,7 @@
 import prisma from "../../common/config/prisma";
 import { ApiError } from "../../common/utils/apiError.util";
 import { AddCartItemInput } from "./cart.types";
+import { updateCartItemSchema } from "./cart.validation";
 
 export const getAllCartList = async (userid: string) => {
   const result = await prisma.cart.findMany({
@@ -72,5 +73,102 @@ export const addCartItem = async (userId: number, data: AddCartItemInput) => {
   });
 };
 
-export const updateCartItem = async (cartId: string) => {};
+export const updateCartItem = async (
+  userId: number,
+  cartItemIdParam: string,
+  body: unknown,
+) => {
+  // 1. Validate the id param
+  const cartItemId = Number(cartItemIdParam);
+  if (!Number.isInteger(cartItemId) || cartItemId <= 0) {
+    throw new ApiError(400, "Invalid cart item id");
+  }
+
+  // 2. Validate the body
+  const { quantity, variantOptionId } = updateCartItemSchema.parse(body);
+
+  return prisma.$transaction(async (tx) => {
+    const cartItem = await tx.cartItem.findUnique({
+      where: { id: cartItemId },
+      include: { cart: true, product: true },
+    });
+
+    // 3. Item must exist
+    if (!cartItem) {
+      throw new ApiError(404, "Cart item not found");
+    }
+
+    // 4. Ownership check
+    if (cartItem.cart.userId !== userId) {
+      throw new ApiError(403, "You do not have access to this cart item");
+    }
+
+    // 5. quantity 0 means remove the item
+    if (quantity === 0) {
+      await tx.cartItem.delete({ where: { id: cartItemId } });
+      return { removed: true, cartItemId };
+    }
+
+    // 6. Product must still be active
+    if (!cartItem.product.isActive) {
+      throw new ApiError(400, "This product is no longer available");
+    }
+
+    const newVariantId =
+      variantOptionId !== undefined
+        ? variantOptionId
+        : cartItem.variantOptionId;
+
+    // 7. If a variant is set, validate it belongs to this product and check its stock
+    let availableStock = cartItem.product.stock;
+
+    if (newVariantId) {
+      const variant = await tx.variantOption.findUnique({
+        where: { id: newVariantId },
+        include: { variant: true },
+      });
+
+      if (!variant || variant.variant.productId !== cartItem.productId) {
+        throw new ApiError(400, "Invalid variant for this product");
+      }
+
+      availableStock = variant.stock ?? availableStock;
+    }
+
+    // 8. Stock check
+    if (availableStock < quantity) {
+      throw new ApiError(400, `Only ${availableStock} unit(s) left in stock`);
+    }
+
+    // 9. If switching variants, check for a collision with an existing line
+    const variantChanged = newVariantId !== cartItem.variantOptionId;
+
+    if (variantChanged) {
+      const conflict = await tx.cartItem.findFirst({
+        where: {
+          cartId: cartItem.cartId,
+          productId: cartItem.productId,
+          variantOptionId: newVariantId,
+          NOT: { id: cartItem.id },
+        },
+      });
+
+      if (conflict) {
+        const merged = await tx.cartItem.update({
+          where: { id: conflict.id },
+          data: { quantity: conflict.quantity + quantity },
+        });
+        await tx.cartItem.delete({ where: { id: cartItem.id } });
+        return merged;
+      }
+    }
+
+    // 10. Plain update
+    return tx.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity, variantOptionId: newVariantId },
+    });
+  });
+};
+
 export const deleteCartItem = async (cartId: string) => {};
