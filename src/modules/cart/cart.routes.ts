@@ -5,7 +5,7 @@ import {
   validateBody,
   validateParam,
 } from "../../common/middlewares/validation.middleware";
-import { addCartItemSchema } from "./cart.validation";
+import { AddCartItemInputValidations } from "./cart.validation";
 
 const router = Router();
 
@@ -14,7 +14,7 @@ router.get("/:id", verifyJWT, validateParam, CartController.getCartDetails);
 router.post(
   "/create",
   verifyJWT,
-  validateBody(addCartItemSchema),
+  validateBody(AddCartItemInputValidations),
   CartController.getCartDetails,
 );
 
