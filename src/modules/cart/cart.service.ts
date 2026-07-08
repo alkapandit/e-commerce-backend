@@ -27,7 +27,7 @@ export const getCartDetails = async (cartId: string) => {
 };
 
 export const addCartItem = async (userId: number, data: AddCartItemInput) => {
-  const { productId, quantity } = data;
+  const { productId, quantity, variantOptionId } = data;
 
   if (quantity < 1) {
     throw new ApiError(400, "Quantity must be at least 1");
@@ -51,11 +51,16 @@ export const addCartItem = async (userId: number, data: AddCartItemInput) => {
 
     const cartItem = await tx.cartItem.upsert({
       where: {
-        cartId_productId: { cartId: cart.id, productId },
+        cartId_productId_variantOptionId: {
+          cartId: cart.id,
+          productId,
+          variantOptionId: variantOptionId ?? 0,
+        },
       },
       create: {
         cartId: cart.id,
         productId,
+        variantOptionId,
         quantity,
       },
       update: {
