@@ -3,9 +3,9 @@ import { ApiError } from "../../common/utils/apiError.util";
 import { AddCartItemInput } from "./cart.types";
 import { updateCartItemSchema } from "./cart.validation";
 
-export const getAllCartList = async (userid: string) => {
+export const getAllCartList = async (userid: number) => {
   const result = await prisma.cart.findMany({
-    where: { userId: Number(userid) },
+    where: { userId: userid },
   });
 
   if (!result) {
