@@ -3,16 +3,42 @@ import { ApiError } from "../../common/utils/apiError.util";
 import { AddCartItemInput } from "./cart.types";
 import { updateCartItemSchema } from "./cart.validation";
 
-export const getAllCartList = async (userid: number) => {
-  const result = await prisma.cart.findMany({
-    where: { userId: userid },
+export const getAllCartList = async (userId: number) => {
+  const cart = await prisma.cart.findUnique({
+    where: { userId },
+    include: {
+      cartItems: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              images: true,
+              price: true,
+              discountPrice: true,
+              stock: true,
+              isActive: true,
+            },
+          },
+          variantOption: {
+            select: {
+              id: true,
+              value: true,
+              price: true,
+              stock: true,
+            },
+          },
+        },
+      },
+    },
   });
 
-  if (!result) {
-    throw new ApiError(404, "No cart item found!");
+  if (!cart) {
+    // No cart yet is a normal state for a new user, not necessarily an error
+    return { userId, cartItems: [] };
   }
 
-  return result;
+  return cart;
 };
 
 export const getCartDetails = async (cartId: string) => {
