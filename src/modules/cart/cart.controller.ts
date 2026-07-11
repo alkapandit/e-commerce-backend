@@ -7,7 +7,7 @@ import * as CartServices from "./cart.service";
 
 export const getAllCartList = asyncHandler(
   async (req: Request, res: Response) => {
-    const id = (req as any).user;
+    const id = (req as any).user.id;
     const result = await CartServices.getAllCartList(id);
     sendResponse({
       res,
@@ -32,7 +32,12 @@ export const getCartDetails = asyncHandler(
 );
 export const updateCartItem = asyncHandler(
   async (req: Request, res: Response) => {
-    const result = await CartServices.updateCartItem(req.params.id as string);
+    const id = (req as any).user.id;
+    const result = await CartServices.updateCartItem(
+      id,
+      req.params.id as string,
+      req.body,
+    );
     sendResponse({
       res,
       data: result,
@@ -43,25 +48,29 @@ export const updateCartItem = asyncHandler(
   },
 );
 export const addCartItem = asyncHandler(async (req: Request, res: Response) => {
-  const id = (req as any)?.userId;
+  const id = (req as any).user.id;
   const result = await CartServices.addCartItem(id, req.body);
   sendResponse({
     res,
     data: result,
     success: true,
     statusCode: HTTP_STATUS.OK,
-    message: "Cart fetched successfully.",
+    message: "Item added successfully.",
   });
 });
 export const deleteCartItem = asyncHandler(
   async (req: Request, res: Response) => {
-    const result = await CartServices.deleteCartItem(req.params.id as string);
+    const id = (req as any).user.id;
+    const result = await CartServices.deleteCartItem(
+      id,
+      req.params.id as string,
+    );
     sendResponse({
       res,
       data: result,
       success: true,
       statusCode: HTTP_STATUS.OK,
-      message: "Cart fetched successfully.",
+      message: "Cart deleted successfully.",
     });
   },
 );

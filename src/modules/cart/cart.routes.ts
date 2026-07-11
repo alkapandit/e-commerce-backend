@@ -5,17 +5,27 @@ import {
   validateBody,
   validateParam,
 } from "../../common/middlewares/validation.middleware";
-import { addCartItemSchema } from "./cart.validation";
+import {
+  AddCartItemInputValidations,
+  updateCartItemSchema,
+} from "./cart.validation";
 
 const router = Router();
 
 router.get("/", verifyJWT, CartController.getAllCartList);
-router.get("/:id", verifyJWT, validateParam, CartController.getCartDetails);
 router.post(
   "/create",
   verifyJWT,
-  validateBody(addCartItemSchema),
-  CartController.getCartDetails,
+  validateBody(AddCartItemInputValidations),
+  CartController.addCartItem,
 );
+router.put(
+  "/update/:id",
+  verifyJWT,
+  validateBody(updateCartItemSchema),
+  CartController.updateCartItem,
+);
+router.get("/:id", verifyJWT, validateParam, CartController.getCartDetails);
+router.delete("/:id", verifyJWT, validateParam, CartController.deleteCartItem);
 
 export default router;
