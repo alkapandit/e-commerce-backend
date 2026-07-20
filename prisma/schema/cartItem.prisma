@@ -1,19 +1,20 @@
 model CartItem {
   id Int @id @default(autoincrement())
 
-  cartId Int
+  cartId Int  @map("cart_id")
   cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
-  productId Int
+  productId Int     @map("product_id")
   product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
-  variantOptionId Int?
+  variantOptionId Int?           @map("variant_option_id")
   variantOption   VariantOption? @relation(fields: [variantOptionId], references: [id], onDelete: Restrict)
 
   quantity Int @default(1)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([cartId, productId, variantOptionId])
+  @@map("cart_items")
 }

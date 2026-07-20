@@ -6,26 +6,27 @@ enum AddressType {
 
 model Address {
   id     Int         @id @default(autoincrement())
-  userId Int
+  userId Int         @map("user_id")
   type   AddressType
 
-  addressLine1 String
-  addressLine2 String?
+  addressLine1 String  @map("address_line_1")
+  addressLine2 String? @map("address_line_2")
   city         String
   state        String
   country      String
   pincode      String
 
-  isDefault Boolean @default(false)
+  isDefault Boolean @default(false) @map("is_default")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders Order[]
 
   @@index([userId])
+  @@map("addresses")
 }
 
 model Buyer {
@@ -47,39 +48,44 @@ model Buyer {
 
 model Cart {
   id     Int  @id @default(autoincrement())
-  userId Int  @unique
+  userId Int  @unique @map("user_id")
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   cartItems CartItem[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("carts")
 }
 
 model CartItem {
   id Int @id @default(autoincrement())
 
-  cartId Int
+  cartId Int  @map("cart_id")
   cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
-  productId Int
+  productId Int     @map("product_id")
   product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
-  variantOptionId Int?
+  variantOptionId Int?           @map("variant_option_id")
   variantOption   VariantOption? @relation(fields: [variantOptionId], references: [id], onDelete: Restrict)
 
   quantity Int @default(1)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([cartId, productId, variantOptionId])
+  @@map("cart_items")
 }
 
 model Category {
   id       Int       @id @default(autoincrement())
   name     String
   products Product[]
+
+  @@map("categories")
 }
 
 enum OrderStatus {
@@ -94,10 +100,10 @@ enum OrderStatus {
 
 model Order {
   id          Int         @id @default(autoincrement())
-  buyerId     Int
+  buyerId     Int         @map("buyer_id")
   status      OrderStatus @default(PENDING)
-  totalAmount Decimal     @db.Decimal(10, 2)
-  addressId   Int
+  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
+  addressId   Int         @map("address_id")
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
@@ -111,8 +117,8 @@ model Order {
 
 model OrderItem {
   id        Int     @id @default(autoincrement())
-  orderId   Int
-  productId Int
+  orderId   Int     @map("order_id")
+  productId Int     @map("product_id")
   quantity  Int
   price     Decimal @db.Decimal(10, 2)
 
@@ -139,13 +145,13 @@ enum PaymentMethod {
 
 model Payment {
   id            Int           @id @default(autoincrement())
-  orderId       Int           @unique
+  orderId       Int           @unique @map("order_id")
   amount        Decimal       @db.Decimal(10, 2)
   status        PaymentStatus @default(PENDING)
   method        PaymentMethod
-  transactionId String?       @unique
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  transactionId String?       @unique @map("transaction_id")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
   order Order @relation(fields: [orderId], references: [id])
 
@@ -154,12 +160,12 @@ model Payment {
 
 model Product {
   id          Int     @id @default(autoincrement())
-  sellerId    Int
+  sellerId    Int     @map("seller_id")
   name        String
   description String?
 
   price         Decimal  @db.Decimal(10, 2)
-  discountPrice Decimal? @db.Decimal(10, 2)
+  discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
 
   sku   String? @unique
   brand String?
@@ -172,14 +178,14 @@ model Product {
   weight     Float?
   dimensions Json? // { length, width, height }
 
-  isActive   Boolean @default(true)
-  isFeatured Boolean @default(false)
+  isActive   Boolean @default(true) @map("is_active")
+  isFeatured Boolean @default(false) @map("is_featured")
 
-  categoryId    Int
-  subCategoryId Int?
+  categoryId    Int  @map("category_id")
+  subCategoryId Int? @map("sub_category_id")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // 🔗 Relations
   category   Category         @relation(fields: [categoryId], references: [id])
@@ -193,7 +199,7 @@ model Product {
 
 model ProductVariant {
   id        Int    @id @default(autoincrement())
-  productId Int
+  productId Int    @map("product_id")
   name      String // e.g. "Size", "Color"
 
   product Product         @relation(fields: [productId], references: [id])
@@ -261,11 +267,11 @@ model User {
   id           Int     @id @default(autoincrement())
   email        String  @unique
   passwordHash String  @map("password_hash")
-  refreshToken String?
+  refreshToken String? @map("refresh_token")
 
   phone     String? @unique
-  firstName String?
-  lastName  String?
+  firstName String? @map("first_name")
+  lastName  String? @map("last_name")
 
   emailOtp        String?
   phoneOtp        String?
@@ -290,7 +296,7 @@ model User {
 
 model VariantOption {
   id        Int @id @default(autoincrement())
-  variantId Int
+  variantId Int @map("variant_id")
 
   value String // e.g. "M", "Red"
   price Decimal? @db.Decimal(10, 2)

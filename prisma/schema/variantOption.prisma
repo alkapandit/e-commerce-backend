@@ -1,6 +1,6 @@
 model VariantOption {
   id        Int @id @default(autoincrement())
-  variantId Int
+  variantId Int @map("variant_id")
 
   value String // e.g. "M", "Red"
   price Decimal? @db.Decimal(10, 2)

@@ -15,11 +15,11 @@ model User {
   id           Int     @id @default(autoincrement())
   email        String  @unique
   passwordHash String  @map("password_hash")
-  refreshToken String?
+  refreshToken String? @map("refresh_token")
 
   phone     String? @unique
-  firstName String?
-  lastName  String?
+  firstName String? @map("first_name")
+  lastName  String? @map("last_name")
 
   emailOtp        String?
   phoneOtp        String?

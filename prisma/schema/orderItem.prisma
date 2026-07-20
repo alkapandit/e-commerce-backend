@@ -1,7 +1,7 @@
 model OrderItem {
   id        Int     @id @default(autoincrement())
-  orderId   Int
-  productId Int
+  orderId   Int     @map("order_id")
+  productId Int     @map("product_id")
   quantity  Int
   price     Decimal @db.Decimal(10, 2)
 

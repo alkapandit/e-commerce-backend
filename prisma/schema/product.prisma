@@ -1,11 +1,11 @@
 model Product {
   id          Int     @id @default(autoincrement())
-  sellerId    Int
+  sellerId    Int     @map("seller_id")
   name        String
   description String?
 
   price         Decimal  @db.Decimal(10, 2)
-  discountPrice Decimal? @db.Decimal(10, 2)
+  discountPrice Decimal? @db.Decimal(10, 2) @map("discount_price")
 
   sku   String? @unique
   brand String?
@@ -18,14 +18,14 @@ model Product {
   weight     Float?
   dimensions Json? // { length, width, height }
 
-  isActive   Boolean @default(true)
-  isFeatured Boolean @default(false)
+  isActive   Boolean @default(true) @map("is_active")
+  isFeatured Boolean @default(false) @map("is_featured")
 
-  categoryId    Int
-  subCategoryId Int?
+  categoryId    Int  @map("category_id")
+  subCategoryId Int? @map("sub_category_id")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // 🔗 Relations
   category   Category         @relation(fields: [categoryId], references: [id])
