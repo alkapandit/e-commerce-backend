@@ -135,6 +135,13 @@ exports.Prisma.AddressScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BannerScalarFieldEnum = {
+  id: 'id',
+  imageUrl: 'imageUrl',
+  category: 'category',
+  placement: 'placement'
+};
+
 exports.Prisma.BuyerScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -354,6 +361,7 @@ exports.UserStatus = exports.$Enums.UserStatus = {
 
 exports.Prisma.ModelName = {
   Address: 'Address',
+  Banner: 'Banner',
   Buyer: 'Buyer',
   Cart: 'Cart',
   CartItem: 'CartItem',

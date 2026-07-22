@@ -5,7 +5,7 @@ model Product {
   description String?
 
   price         Decimal  @db.Decimal(10, 2)
-  discountPrice Decimal? @db.Decimal(10, 2) @map("discount_price")
+  discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
 
   sku   String? @unique
   brand String?

@@ -1,0 +1,8 @@
+model Banner {
+  id        Int    @id @default(autoincrement())
+  imageUrl  String @map("image_url")
+  category  String @map("category")
+  placement String @map("placement")
+
+  @@map("banner")
+}

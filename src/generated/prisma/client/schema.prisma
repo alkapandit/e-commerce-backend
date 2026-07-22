@@ -29,6 +29,15 @@ model Address {
   @@map("addresses")
 }
 
+model Banner {
+  id        Int    @id @default(autoincrement())
+  imageUrl  String @map("image_url")
+  category  String @map("category")
+  placement String @map("placement")
+
+  @@map("banner")
+}
+
 model Buyer {
   id     Int @id @default(autoincrement())
   userId Int @unique @map("user_id")
